@@ -110,6 +110,7 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
         return new DefaultModuleVersionIdentifier(moduleGroup, application, getApplicationVersion());
     }
 
+    @Override
     public void from(SoftwareComponent component) {
         if (this.component != null) {
             throw new InvalidUserDataException(String.format("ProductStore publication '%s' cannot include multiple components", name));
@@ -118,6 +119,7 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
 
     }
 
+    @Override
     public void artifact(Object source) {
         mavenArtifact = artifactNotationParser.parseNotation(source);
     }
