@@ -9,7 +9,6 @@ import org.gradle.api.internal.artifacts.Module;
 import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.file.FileCollectionFactory;
-import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
@@ -29,15 +28,13 @@ import static java.util.Locale.ENGLISH;
 
 public class ProductStorePublishPlugin implements Plugin<Project> {
     private final Instantiator instantiator;
-    private final FileResolver fileResolver;
     private final DependencyMetaDataProvider dependencyMetaDataProvider;
     private final ImmutableAttributesFactory immutableAttributesFactory;
     private final FileCollectionFactory fileCollectionFactory;
 
     @Inject
-    public ProductStorePublishPlugin(Instantiator instantiator, FileResolver fileResolver, DependencyMetaDataProvider dependencyMetaDataProvider, ImmutableAttributesFactory immutableAttributesFactory, FileCollectionFactory fileCollectionFactory) {
+    public ProductStorePublishPlugin(Instantiator instantiator, DependencyMetaDataProvider dependencyMetaDataProvider, ImmutableAttributesFactory immutableAttributesFactory, FileCollectionFactory fileCollectionFactory) {
         this.instantiator = instantiator;
-        this.fileResolver = fileResolver;
         this.dependencyMetaDataProvider = dependencyMetaDataProvider;
         this.immutableAttributesFactory = immutableAttributesFactory;
         this.fileCollectionFactory = fileCollectionFactory;
