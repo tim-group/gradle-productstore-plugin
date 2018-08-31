@@ -18,6 +18,7 @@ import org.gradle.internal.DisplayName;
 import org.gradle.internal.Factory;
 import org.gradle.internal.reflect.Instantiator;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 
@@ -31,10 +32,10 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     private String version;
     private boolean alias;
 
-    public DefaultProductStorePublication(String name, String moduleGroup, String moduleVersion,
-                                          ImmutableAttributesFactory immutableAttributesFactory,
-                                          Instantiator instantiator,
-                                          FileCollectionFactory fileCollectionFactory) {
+    DefaultProductStorePublication(String name, String moduleGroup, String moduleVersion,
+                                   ImmutableAttributesFactory immutableAttributesFactory,
+                                   Instantiator instantiator,
+                                   FileCollectionFactory fileCollectionFactory) {
         this.name = name;
         this.moduleGroup = moduleGroup;
         this.version = moduleVersion;
@@ -43,6 +44,7 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     }
 
     @Override
+    @Nonnull
     public String getName() {
         return name;
     }
