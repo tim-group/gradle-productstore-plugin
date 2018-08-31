@@ -82,7 +82,7 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
         }
     }
 
-    private class PublicationFactory implements NamedDomainObjectFactory<ProductStorePublication> {
+    private final class PublicationFactory implements NamedDomainObjectFactory<ProductStorePublication> {
         @Override
         @Nonnull
         public ProductStorePublication create(@Nonnull String name) {
