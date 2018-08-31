@@ -13,17 +13,15 @@ import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
-import org.gradle.api.publish.maven.MavenArtifact;
-import org.gradle.api.publish.maven.internal.artifact.MavenArtifactNotationParserFactory;
 import org.gradle.api.publish.plugins.PublishingPlugin;
 import org.gradle.internal.reflect.Instantiator;
-import org.gradle.internal.typeconversion.NotationParser;
 import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.File;
 
@@ -46,7 +44,7 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
     }
 
     @Override
-    public void apply(Project project) {
+    public void apply(@Nonnull Project project) {
         project.getPluginManager().apply(PublishingPlugin.class);
 
         project.getExtensions().configure(PublishingExtension.class, extension -> {
@@ -89,11 +87,11 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
 
     private class PublicationFactory implements NamedDomainObjectFactory<ProductStorePublication> {
         @Override
-        public ProductStorePublication create(String name) {
+        @Nonnull
+        public ProductStorePublication create(@Nonnull String name) {
             Module module = dependencyMetaDataProvider.getModule();
-            NotationParser<Object, MavenArtifact> artifactNotationParser = new MavenArtifactNotationParserFactory(instantiator, fileResolver).create();
             return new DefaultProductStorePublication(name, module.getGroup(), module.getVersion(),
-                    immutableAttributesFactory, artifactNotationParser, fileCollectionFactory);
+                    immutableAttributesFactory, instantiator, fileCollectionFactory);
         }
     }
 

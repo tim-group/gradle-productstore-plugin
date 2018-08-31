@@ -1,6 +1,6 @@
 package com.timgroup.gradle.productstore;
 
-import org.gradle.api.component.SoftwareComponent;
+import org.gradle.api.Action;
 import org.gradle.api.publish.Publication;
 
 public interface ProductStorePublication extends Publication {
@@ -9,6 +9,8 @@ public interface ProductStorePublication extends Publication {
     String getVersion();
     void setVersion(String version);
 
-    void from(SoftwareComponent component);
     void artifact(Object source);
+    void artifact(Object source, Action<? super ProductStoreArtifact> config);
+
+    ProductStoreArtifactSet getArtifacts();
 }

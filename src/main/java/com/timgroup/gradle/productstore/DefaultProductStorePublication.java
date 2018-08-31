@@ -1,73 +1,45 @@
 package com.timgroup.gradle.productstore;
 
+import org.gradle.api.Action;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.component.SoftwareComponent;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.artifacts.DefaultModuleIdentifier;
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.file.FileCollectionFactory;
-import org.gradle.api.internal.file.collections.MinimalFileSet;
 import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.internal.tasks.AbstractTaskDependency;
-import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
-import org.gradle.api.publish.maven.MavenArtifact;
+import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
-import org.gradle.internal.typeconversion.NotationParser;
+import org.gradle.internal.Factory;
+import org.gradle.internal.reflect.Instantiator;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Collections;
-import java.util.Set;
 
 public class DefaultProductStorePublication implements ProductStorePublicationInternal {
     private final String name;
     private final String moduleGroup;
     private final ImmutableAttributesFactory immutableAttributesFactory;
-    private final NotationParser<Object, MavenArtifact> artifactNotationParser;
-    private final FileCollection files;
+    private final DefaultProductStoreArtifactSet artifacts;
 
     private String application;
     private String version;
     private boolean alias;
-    private SoftwareComponentInternal component;
-    private MavenArtifact mavenArtifact;
 
     public DefaultProductStorePublication(String name, String moduleGroup, String moduleVersion,
-                                          ImmutableAttributesFactory immutableAttributesFactory, NotationParser<Object, MavenArtifact> artifactNotationParser,
+                                          ImmutableAttributesFactory immutableAttributesFactory,
+                                          Instantiator instantiator,
                                           FileCollectionFactory fileCollectionFactory) {
         this.name = name;
         this.moduleGroup = moduleGroup;
         this.version = moduleVersion;
         this.immutableAttributesFactory = immutableAttributesFactory;
-        this.artifactNotationParser = artifactNotationParser;
-        this.files = fileCollectionFactory.create(new AbstractTaskDependency() {
-            @Override
-            public void visitDependencies(TaskDependencyResolveContext context) {
-                if (mavenArtifact != null) {
-                    context.add(mavenArtifact);
-                }
-            }
-        }, new MinimalFileSet() {
-            @Override
-            public String getDisplayName() {
-                return "artifacts for ProductStore publication '" + name + "'";
-            }
-
-            @Override
-            public Set<File> getFiles() {
-                if (mavenArtifact == null) {
-                    return Collections.emptySet();
-                }
-                else {
-                    return Collections.singleton(mavenArtifact.getFile());
-                }
-            }
-        });
+        this.artifacts = instantiator.newInstance(DefaultProductStoreArtifactSet.class, name, fileCollectionFactory);
     }
 
     @Override
@@ -107,21 +79,17 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
 
     @Override
     public ModuleVersionIdentifier getCoordinates() {
-        return new DefaultModuleVersionIdentifier(moduleGroup, application, getApplicationVersion());
-    }
-
-    @Override
-    public void from(SoftwareComponent component) {
-        if (this.component != null) {
-            throw new InvalidUserDataException(String.format("ProductStore publication '%s' cannot include multiple components", name));
-        }
-        this.component = (SoftwareComponentInternal) component;
-
+        return DefaultModuleVersionIdentifier.newId(DefaultModuleIdentifier.newId(moduleGroup, application), getApplicationVersion());
     }
 
     @Override
     public void artifact(Object source) {
-        mavenArtifact = artifactNotationParser.parseNotation(source);
+        artifacts.artifact(source);
+    }
+
+    @Override
+    public void artifact(Object source, Action<? super ProductStoreArtifact> config) {
+        artifacts.artifact(source, config);
     }
 
     @Nullable
@@ -166,15 +134,12 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     @Nullable
     @Override
     public SoftwareComponentInternal getComponent() {
-        return component;
+        return null;
     }
 
     @Override
     public File getArtifactFile() {
-        if (mavenArtifact == null) {
-            throw new IllegalStateException("No artifact specified to get file location of");
-        }
-        return mavenArtifact.getFile();
+        return artifacts.getArtifactFile();
     }
 
     @Override
@@ -185,7 +150,7 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     }
 
     public FileCollection getPublishableFiles() {
-        return files;
+        return artifacts.getFiles();
     }
 
     private String getDestLeafname() {
@@ -195,5 +160,35 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     @Override
     public String getDestFile() {
         return application + "/" + getDestLeafname();
+    }
+
+    @Override
+    public ProductStoreArtifactSet getArtifacts() {
+        return artifacts;
+    }
+
+    @Override
+    public PublicationArtifactSet<ProductStoreArtifact> getPublishableArtifacts() {
+        return artifacts;
+    }
+
+    @Override
+    public void allPublishableArtifacts(Action<? super ProductStoreArtifact> action) {
+        artifacts.all(action);
+    }
+
+    @Override
+    public void whenPublishableArtifactRemoved(Action<? super ProductStoreArtifact> action) {
+        artifacts.whenObjectRemoved(action);
+    }
+
+    @Override
+    public ProductStoreArtifact addDerivedArtifact(ProductStoreArtifact originalArtifact, Factory<File> file) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeDerivedArtifact(ProductStoreArtifact artifact) {
+        throw new UnsupportedOperationException();
     }
 }

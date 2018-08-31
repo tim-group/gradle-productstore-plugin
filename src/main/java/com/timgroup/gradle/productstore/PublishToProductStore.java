@@ -5,11 +5,17 @@ import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.process.internal.ExecActionFactory;
+import org.gradle.tooling.BuildActionFailureException;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
@@ -31,6 +37,7 @@ public class PublishToProductStore extends DefaultTask {
         }).withPropertyName("publication.publishableFiles");
     }
 
+    @Internal
     public ProductStorePublicationInternal getPublication() {
         return publication;
     }
@@ -39,6 +46,7 @@ public class PublishToProductStore extends DefaultTask {
         this.publication = publication;
     }
 
+    @Input
     public RegularFileProperty getIdentityFile() {
         return identityFile;
     }
@@ -47,6 +55,7 @@ public class PublishToProductStore extends DefaultTask {
         this.identityFile = identityFile;
     }
 
+    @Input
     public Property<String> getStoreUser() {
         return storeUser;
     }
@@ -55,6 +64,7 @@ public class PublishToProductStore extends DefaultTask {
         this.storeUser = storeUser;
     }
 
+    @Input
     public Property<String> getStoreHost() {
         return storeHost;
     }
@@ -63,6 +73,7 @@ public class PublishToProductStore extends DefaultTask {
         this.storeHost = storeHost;
     }
 
+    @Input
     public Property<String> getStorePath() {
         return storePath;
     }
@@ -87,14 +98,25 @@ public class PublishToProductStore extends DefaultTask {
 
         String targetPathname = String.format("%s/%s", storePath.get(), publication.getDestFile());
         String targetDir = dirname(targetPathname);
-        String target = String.format("%s@%s:%s", storeUser.get(), storeHost.get(), targetPathname);
-        String url = String.format("ssh://%s@%s%s", storeUser.get(), storeHost.get(), targetPathname);
 
-        System.out.println("Upload " + url);
+        if (storeHost.get().equals("localhost")) {
+            System.out.println("Copy " + publication.getArtifactFile() + " to " + targetPathname);
+            try {
+                Files.createDirectories(Paths.get(targetDir));
+                Files.copy(publication.getArtifactFile().toPath(), Paths.get(targetPathname));
+            } catch (IOException e) {
+                throw new BuildActionFailureException("Failed to copy file to target: " + e, e);
+            }
+        }
+        else {
+            String url = String.format("ssh://%s@%s%s", storeUser.get(), storeHost.get(), targetPathname);
+            String target = String.format("%s@%s:%s", storeUser.get(), storeHost.get(), targetPathname);
 
+            System.out.println("Upload " + url);
 
-        exec("ssh", "-i", identityFile.getAsFile().get().toString(), String.format("%s@%s", storeUser.get(), storeHost.get()), "mkdir -p " + targetDir);
-        exec("scp", "-o", "StrictHostKeyChecking=no", "-i", identityFile.getAsFile().get().toString(), publication.getArtifactFile().toString(), target);
+            exec("ssh", "-i", identityFile.getAsFile().get().toString(), String.format("%s@%s", storeUser.get(), storeHost.get()), "mkdir -p " + targetDir);
+            exec("scp", "-o", "StrictHostKeyChecking=no", "-i", identityFile.getAsFile().get().toString(), publication.getArtifactFile().toString(), target);
+        }
     }
 
     private void exec(String... commandLine) {

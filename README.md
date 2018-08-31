@@ -20,7 +20,6 @@ publishing {
     publications {
         productStore(ProductStorePublication) {
             application = "DeployableApplication"
-            from components.java
             artifact shadowJar
         }
     }

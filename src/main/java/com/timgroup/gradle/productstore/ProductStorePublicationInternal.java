@@ -5,7 +5,7 @@ import org.gradle.api.publish.internal.PublicationInternal;
 
 import java.io.File;
 
-public interface ProductStorePublicationInternal extends ProductStorePublication, PublicationInternal {
+public interface ProductStorePublicationInternal extends ProductStorePublication, PublicationInternal<ProductStoreArtifact> {
     File getArtifactFile();
     String getDestFile();
     String getApplicationVersion();
