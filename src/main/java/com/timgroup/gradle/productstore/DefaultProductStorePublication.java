@@ -5,7 +5,6 @@ import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.artifacts.DefaultModuleIdentifier;
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
@@ -24,7 +23,6 @@ import java.io.File;
 
 public class DefaultProductStorePublication implements ProductStorePublicationInternal {
     private final String name;
-    private final String moduleGroup;
     private final ImmutableAttributesFactory immutableAttributesFactory;
     private final DefaultProductStoreArtifactSet artifacts;
 
@@ -32,12 +30,11 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     private String version;
     private boolean alias;
 
-    DefaultProductStorePublication(String name, String moduleGroup, String moduleVersion,
+    DefaultProductStorePublication(String name, String moduleVersion,
                                    ImmutableAttributesFactory immutableAttributesFactory,
                                    Instantiator instantiator,
                                    FileCollectionFactory fileCollectionFactory) {
         this.name = name;
-        this.moduleGroup = moduleGroup;
         this.version = moduleVersion;
         this.immutableAttributesFactory = immutableAttributesFactory;
         this.artifacts = instantiator.newInstance(DefaultProductStoreArtifactSet.class, name, fileCollectionFactory);
@@ -81,7 +78,7 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
 
     @Override
     public ModuleVersionIdentifier getCoordinates() {
-        return DefaultModuleVersionIdentifier.newId(DefaultModuleIdentifier.newId(moduleGroup, application), getApplicationVersion());
+        return DefaultModuleVersionIdentifier.newId("com.timgroup.gradle.productstore.ARTIFACTS", getApplication(), getApplicationVersion());
     }
 
     @Override

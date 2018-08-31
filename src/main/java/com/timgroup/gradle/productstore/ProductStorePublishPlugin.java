@@ -87,7 +87,7 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
         @Nonnull
         public ProductStorePublication create(@Nonnull String name) {
             Module module = dependencyMetaDataProvider.getModule();
-            return new DefaultProductStorePublication(name, module.getGroup(), module.getVersion(),
+            return new DefaultProductStorePublication(name, module.getVersion(),
                     immutableAttributesFactory, instantiator, fileCollectionFactory);
         }
     }
