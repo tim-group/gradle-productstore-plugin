@@ -10,6 +10,8 @@ import org.gradle.api.internal.tasks.TaskDependencyInternal;
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
+import org.gradle.internal.file.PathToFileResolver;
+import org.gradle.internal.reflect.Instantiator;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -20,11 +22,15 @@ public class DefaultProductStoreArtifactSet extends DefaultDomainObjectSet<Produ
     private final TaskDependencyInternal builtBy = new ArtifactsTaskDependency();
     private final String publicationName;
     private final FileCollection files;
+    private final PathToFileResolver pathToFileResolver;
+    private final Instantiator instantiator;
 
-    public DefaultProductStoreArtifactSet(String publicationName, FileCollectionFactory fileCollectionFactory) {
+    public DefaultProductStoreArtifactSet(String publicationName, FileCollectionFactory fileCollectionFactory, PathToFileResolver pathToFileResolver, Instantiator instantiator) {
         super(ProductStoreArtifact.class);
         this.publicationName = publicationName;
         this.files = fileCollectionFactory.create(builtBy, new ArtifactsFileCollection());
+        this.pathToFileResolver = pathToFileResolver;
+        this.instantiator = instantiator;
     }
 
     @Override
@@ -34,14 +40,15 @@ public class DefaultProductStoreArtifactSet extends DefaultDomainObjectSet<Produ
 
     @Override
     public ProductStoreArtifact artifact(Object source) {
+        ProductStoreArtifact artifact;
         if (source instanceof AbstractArchiveTask) {
-            ArchiveTaskBasedProductStoreArtifact artifact = new ArchiveTaskBasedProductStoreArtifact((AbstractArchiveTask) source);
-            add(artifact);
-            return artifact;
+            artifact = instantiator.newInstance(ArchiveTaskBasedProductStoreArtifact.class, source);
         }
         else {
-            throw new IllegalArgumentException("Unhandled artifact for product store publication: " + source);
+            artifact = instantiator.newInstance(FileBasedProductStoreArtifact.class, pathToFileResolver.resolve(source));
         }
+        add(artifact);
+        return artifact;
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 import org.gradle.internal.Factory;
+import org.gradle.internal.file.PathToFileResolver;
 import org.gradle.internal.reflect.Instantiator;
 
 import javax.annotation.Nonnull;
@@ -30,14 +31,15 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     private String version;
     private boolean alias;
 
-    DefaultProductStorePublication(String name, String moduleVersion,
+    public DefaultProductStorePublication(String name, String moduleVersion,
                                    ImmutableAttributesFactory immutableAttributesFactory,
                                    Instantiator instantiator,
-                                   FileCollectionFactory fileCollectionFactory) {
+                                   FileCollectionFactory fileCollectionFactory,
+                                   PathToFileResolver pathToFileResolver) {
         this.name = name;
         this.version = moduleVersion;
         this.immutableAttributesFactory = immutableAttributesFactory;
-        this.artifacts = instantiator.newInstance(DefaultProductStoreArtifactSet.class, name, fileCollectionFactory);
+        this.artifacts = instantiator.newInstance(DefaultProductStoreArtifactSet.class, name, fileCollectionFactory, pathToFileResolver, instantiator);
     }
 
     @Override

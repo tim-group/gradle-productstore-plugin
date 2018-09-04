@@ -13,6 +13,7 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.plugins.PublishingPlugin;
+import org.gradle.internal.file.PathToFileResolver;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
@@ -31,13 +32,15 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
     private final DependencyMetaDataProvider dependencyMetaDataProvider;
     private final ImmutableAttributesFactory immutableAttributesFactory;
     private final FileCollectionFactory fileCollectionFactory;
+    private final PathToFileResolver pathToFileResolver;
 
     @Inject
-    public ProductStorePublishPlugin(Instantiator instantiator, DependencyMetaDataProvider dependencyMetaDataProvider, ImmutableAttributesFactory immutableAttributesFactory, FileCollectionFactory fileCollectionFactory) {
+    public ProductStorePublishPlugin(Instantiator instantiator, DependencyMetaDataProvider dependencyMetaDataProvider, ImmutableAttributesFactory immutableAttributesFactory, FileCollectionFactory fileCollectionFactory, PathToFileResolver pathToFileResolver) {
         this.instantiator = instantiator;
         this.dependencyMetaDataProvider = dependencyMetaDataProvider;
         this.immutableAttributesFactory = immutableAttributesFactory;
         this.fileCollectionFactory = fileCollectionFactory;
+        this.pathToFileResolver = pathToFileResolver;
     }
 
     @Override
@@ -87,8 +90,9 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
         @Nonnull
         public ProductStorePublication create(@Nonnull String name) {
             Module module = dependencyMetaDataProvider.getModule();
-            return new DefaultProductStorePublication(name, module.getVersion(),
-                    immutableAttributesFactory, instantiator, fileCollectionFactory);
+            return instantiator.newInstance(DefaultProductStorePublication.class,
+                                            name, module.getVersion(),
+                                            immutableAttributesFactory, instantiator, fileCollectionFactory, pathToFileResolver);
         }
     }
 
