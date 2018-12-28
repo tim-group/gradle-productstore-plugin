@@ -1,6 +1,5 @@
 package com.timgroup.gradle.productstore;
 
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -13,11 +12,11 @@ public class ProductStoreProjectExtension {
     private final Property<String> path;
     private final RegularFileProperty identity;
 
-    public ProductStoreProjectExtension(ObjectFactory objectFactory, ProjectLayout projectLayout) {
+    public ProductStoreProjectExtension(ObjectFactory objectFactory) {
         host = objectFactory.property(String.class);
         user = objectFactory.property(String.class);
         path = objectFactory.property(String.class);
-        identity = projectLayout.fileProperty();
+        identity = objectFactory.fileProperty();
 
         host.set("productstore");
         user.set("productstore");

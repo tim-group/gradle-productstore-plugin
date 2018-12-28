@@ -51,7 +51,7 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
             extension.getPublications().registerFactory(ProductStorePublication.class, new PublicationFactory());
         });
 
-        project.getExtensions().create("productstore", ProductStoreProjectExtension.class, project.getObjects(), project.getLayout());
+        project.getExtensions().create("productstore", ProductStoreProjectExtension.class, project.getObjects());
     }
 
     @SuppressWarnings("unused")
