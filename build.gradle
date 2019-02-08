@@ -25,7 +25,7 @@ dependencies {
 
     testCompile "junit:junit:4.12"
     testCompile('org.spockframework:spock-core:1.2-groovy-2.5') {
-        exclude module: 'groovy-all'
+        exclude module: 'groovy'
     }
 }
 

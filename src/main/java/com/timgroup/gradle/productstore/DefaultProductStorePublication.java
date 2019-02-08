@@ -12,6 +12,7 @@ import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.publish.internal.PublicationArtifactSet;
+import org.gradle.api.publish.internal.versionmapping.VersionMappingStrategyInternal;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 import org.gradle.internal.Factory;
@@ -191,5 +192,11 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     @Override
     public void removeDerivedArtifact(ProductStoreArtifact artifact) {
         throw new UnsupportedOperationException();
+    }
+
+    @Nullable
+    @Override
+    public VersionMappingStrategyInternal getVersionMappingStrategy() {
+        return null;
     }
 }
