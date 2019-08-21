@@ -15,6 +15,7 @@ import org.gradle.tooling.BuildActionFailureException;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -100,20 +101,19 @@ public class PublishToProductStore extends DefaultTask {
         }
         else {
             String url = String.format("ssh://%s@%s%s", storeUser.get(), storeHost.get(), targetPathname);
-            String target = String.format("%s@%s:%s", storeUser.get(), storeHost.get(), targetPathname);
 
             System.out.println("Upload " + url);
 
-            exec("ssh", "-i", identityFile.getAsFile().get().toString(), String.format("%s@%s", storeUser.get(), storeHost.get()), "mkdir -p " + targetDir);
-            exec("scp", "-o", "StrictHostKeyChecking=no", "-i", identityFile.getAsFile().get().toString(), publication.getArtifactFile().toString(), target);
-            exec("ssh", "-i", identityFile.getAsFile().get().toString(), String.format("%s@%s", storeUser.get(), storeHost.get()), "chmod 0444 " + targetPathname);
+            try (InputStream inputStream = Files.newInputStream(publication.getArtifactFile().toPath())) {
+                ExecAction execAction = getExecActionFactory().newExecAction();
+                execAction.setStandardInput(inputStream);
+                execAction.setCommandLine(Arrays.asList("ssh", "-i", identityFile.getAsFile().get().toString(), String.format("%s@%s", storeUser.get(), storeHost.get()),
+                        String.format("mkdir -p %s && cat > %s && chmod 0444 %s", targetDir, targetPathname, targetPathname)));
+                execAction.execute();
+            } catch (IOException e) {
+                throw new BuildActionFailureException("Unable to read artifact", e);
+            }
         }
-    }
-
-    private void exec(String... commandLine) {
-        ExecAction execAction = getExecActionFactory().newExecAction();
-        execAction.setCommandLine(Arrays.asList(commandLine));
-        execAction.execute();
     }
 
     private static String dirname(String pathname) {
