@@ -74,10 +74,10 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
                 tasks.create(publishTaskName, PublishToProductStore.class, task -> {
                     task.setPublication(publication);
                     task.setGroup(PublishingPlugin.PUBLISH_TASK_GROUP);
-                    task.setIdentityFile(productStoreExtension.getIdentity());
-                    task.setStoreUser(productStoreExtension.getUser());
-                    task.setStoreHost(productStoreExtension.getHost());
-                    task.setStorePath(productStoreExtension.getPath());
+                    task.getIdentityFile().set(productStoreExtension.getIdentity());
+                    task.getStoreUser().set(productStoreExtension.getUser());
+                    task.getStoreHost().set(productStoreExtension.getHost());
+                    task.getStorePath().set(productStoreExtension.getPath());
                     task.setDescription("Publishes ProductStore publication '" + publicationName + "'");
                 });
                 publishLifecycleTask.dependsOn(publishTaskName);

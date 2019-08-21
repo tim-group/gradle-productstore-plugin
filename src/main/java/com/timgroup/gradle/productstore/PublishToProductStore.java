@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
@@ -21,12 +22,13 @@ import java.util.concurrent.Callable;
 
 public class PublishToProductStore extends DefaultTask {
     private ProductStorePublicationInternal publication;
-    private RegularFileProperty identityFile;
-    private Property<String> storeUser;
-    private Property<String> storeHost;
-    private Property<String> storePath;
+    private final RegularFileProperty identityFile;
+    private final Property<String> storeUser;
+    private final Property<String> storeHost;
+    private final Property<String> storePath;
 
-    public PublishToProductStore() {
+    @Inject
+    public PublishToProductStore(ObjectFactory objectFactory) {
         getInputs().files((Callable<FileCollection>) () -> {
             if (publication != null) {
                 return publication.getPublishableFiles();
@@ -35,6 +37,10 @@ public class PublishToProductStore extends DefaultTask {
                 return null;
             }
         }).withPropertyName("publication.publishableFiles");
+        identityFile = objectFactory.fileProperty();
+        storeUser = objectFactory.property(String.class);
+        storeHost = objectFactory.property(String.class);
+        storePath = objectFactory.property(String.class);
     }
 
     @Internal
@@ -51,17 +57,9 @@ public class PublishToProductStore extends DefaultTask {
         return identityFile;
     }
 
-    public void setIdentityFile(RegularFileProperty identityFile) {
-        this.identityFile = identityFile;
-    }
-
     @Input
     public Property<String> getStoreUser() {
         return storeUser;
-    }
-
-    public void setStoreUser(Property<String> storeUser) {
-        this.storeUser = storeUser;
     }
 
     @Input
@@ -69,17 +67,9 @@ public class PublishToProductStore extends DefaultTask {
         return storeHost;
     }
 
-    public void setStoreHost(Property<String> storeHost) {
-        this.storeHost = storeHost;
-    }
-
     @Input
     public Property<String> getStorePath() {
         return storePath;
-    }
-
-    public void setStorePath(Property<String> storePath) {
-        this.storePath = storePath;
     }
 
     @Inject
