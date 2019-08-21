@@ -82,7 +82,7 @@ public class PublishToProductStore extends DefaultTask {
         if (publication == null) {
             throw new InvalidUserDataException("The 'publication' property is required");
         }
-        if (identityFile == null) {
+        if (!identityFile.isPresent()) {
             throw new InvalidUserDataException("The 'identityFile' property is required");
         }
 
