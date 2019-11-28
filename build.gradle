@@ -20,11 +20,11 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    implementation gradleApi()
+    implementation localGroovy()
 
-    testCompile "junit:junit:4.12"
-    testCompile('org.spockframework:spock-core:1.2-groovy-2.5') {
+    testImplementation "junit:junit:4.12"
+    testImplementation('org.spockframework:spock-core:1.2-groovy-2.5') {
         exclude module: 'groovy'
     }
 }
