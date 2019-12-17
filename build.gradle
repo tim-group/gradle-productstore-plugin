@@ -12,11 +12,17 @@ ext {
 }
 
 group = 'com.timgroup'
-if (buildNumber) version = '1.0.' + buildNumber
+if (buildNumber) version = "1.0.${buildNumber}"
 description = "Publish fat jars to ProductStore"
 
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
 }
 
 dependencies {
@@ -35,7 +41,7 @@ test {
 
 gradlePlugin {
     plugins {
-        webpack {
+        productstore {
             id = "com.timgroup.productstore"
             implementationClass = "com.timgroup.gradle.productstore.ProductStorePublishPlugin"
         }
@@ -69,20 +75,3 @@ publishing {
         }
     }
 }
-
-model {
-    publishing {
-        publications {
-            pluginMaven {
-                artifact sourcesJar
-            }
-        }
-    }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-assemble.dependsOn(sourcesJar)
