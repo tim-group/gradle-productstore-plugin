@@ -7,14 +7,11 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.artifacts.Module;
 import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
-import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
-import org.gradle.api.internal.file.FileCollectionFactory;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.plugins.PublishingPlugin;
-import org.gradle.internal.file.PathToFileResolver;
-import org.gradle.internal.reflect.Instantiator;
 import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
@@ -28,19 +25,13 @@ import java.io.File;
 import static java.util.Locale.ENGLISH;
 
 public class ProductStorePublishPlugin implements Plugin<Project> {
-    private final Instantiator instantiator;
+    private final ObjectFactory objectFactory;
     private final DependencyMetaDataProvider dependencyMetaDataProvider;
-    private final ImmutableAttributesFactory immutableAttributesFactory;
-    private final FileCollectionFactory fileCollectionFactory;
-    private final PathToFileResolver pathToFileResolver;
 
     @Inject
-    public ProductStorePublishPlugin(Instantiator instantiator, DependencyMetaDataProvider dependencyMetaDataProvider, ImmutableAttributesFactory immutableAttributesFactory, FileCollectionFactory fileCollectionFactory, PathToFileResolver pathToFileResolver) {
-        this.instantiator = instantiator;
+    public ProductStorePublishPlugin(ObjectFactory objectFactory, DependencyMetaDataProvider dependencyMetaDataProvider) {
+        this.objectFactory = objectFactory;
         this.dependencyMetaDataProvider = dependencyMetaDataProvider;
-        this.immutableAttributesFactory = immutableAttributesFactory;
-        this.fileCollectionFactory = fileCollectionFactory;
-        this.pathToFileResolver = pathToFileResolver;
     }
 
     @Override
@@ -90,9 +81,7 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
         @Nonnull
         public ProductStorePublication create(@Nonnull String name) {
             Module module = dependencyMetaDataProvider.getModule();
-            return instantiator.newInstance(DefaultProductStorePublication.class,
-                                            name, module.getVersion(),
-                                            immutableAttributesFactory, instantiator, fileCollectionFactory, pathToFileResolver);
+            return objectFactory.newInstance(DefaultProductStorePublication.class, name, module.getVersion());
         }
     }
 

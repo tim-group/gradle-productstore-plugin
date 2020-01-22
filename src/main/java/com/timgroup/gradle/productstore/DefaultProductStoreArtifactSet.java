@@ -2,18 +2,20 @@ package com.timgroup.gradle.productstore;
 
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.collections.MinimalFileSet;
 import org.gradle.api.internal.tasks.AbstractTaskDependency;
 import org.gradle.api.internal.tasks.TaskDependencyInternal;
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.internal.file.PathToFileResolver;
-import org.gradle.internal.reflect.Instantiator;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -23,14 +25,15 @@ public class DefaultProductStoreArtifactSet extends DefaultDomainObjectSet<Produ
     private final String publicationName;
     private final FileCollection files;
     private final PathToFileResolver pathToFileResolver;
-    private final Instantiator instantiator;
+    private final ObjectFactory objectFactory;
 
-    public DefaultProductStoreArtifactSet(String publicationName, FileCollectionFactory fileCollectionFactory, PathToFileResolver pathToFileResolver, Instantiator instantiator) {
-        super(ProductStoreArtifact.class);
+    @Inject
+    public DefaultProductStoreArtifactSet(String publicationName, FileCollectionFactory fileCollectionFactory, PathToFileResolver pathToFileResolver, ObjectFactory objectFactory, CollectionCallbackActionDecorator collectionCallbackActionDecorator) {
+        super(ProductStoreArtifact.class, collectionCallbackActionDecorator);
         this.publicationName = publicationName;
         this.files = fileCollectionFactory.create(builtBy, new ArtifactsFileCollection());
         this.pathToFileResolver = pathToFileResolver;
-        this.instantiator = instantiator;
+        this.objectFactory = objectFactory;
     }
 
     @Override
@@ -42,10 +45,10 @@ public class DefaultProductStoreArtifactSet extends DefaultDomainObjectSet<Produ
     public ProductStoreArtifact artifact(Object source) {
         ProductStoreArtifact artifact;
         if (source instanceof AbstractArchiveTask) {
-            artifact = instantiator.newInstance(ArchiveTaskBasedProductStoreArtifact.class, source);
+            artifact = objectFactory.newInstance(ArchiveTaskBasedProductStoreArtifact.class, source);
         }
         else {
-            artifact = instantiator.newInstance(FileBasedProductStoreArtifact.class, pathToFileResolver.resolve(source));
+            artifact = objectFactory.newInstance(FileBasedProductStoreArtifact.class, pathToFileResolver.resolve(source));
         }
         add(artifact);
         return artifact;

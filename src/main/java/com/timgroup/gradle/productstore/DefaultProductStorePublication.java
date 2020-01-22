@@ -9,18 +9,17 @@ import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.component.SoftwareComponentInternal;
-import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.api.publish.internal.versionmapping.VersionMappingStrategyInternal;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 import org.gradle.internal.Factory;
-import org.gradle.internal.file.PathToFileResolver;
-import org.gradle.internal.reflect.Instantiator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.io.File;
 
 public class DefaultProductStorePublication implements ProductStorePublicationInternal {
@@ -32,15 +31,14 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     private String version;
     private boolean alias;
 
+    @Inject
     public DefaultProductStorePublication(String name, String moduleVersion,
-                                   ImmutableAttributesFactory immutableAttributesFactory,
-                                   Instantiator instantiator,
-                                   FileCollectionFactory fileCollectionFactory,
-                                   PathToFileResolver pathToFileResolver) {
+                                          ImmutableAttributesFactory immutableAttributesFactory,
+                                          ObjectFactory objectFactory) {
         this.name = name;
         this.version = moduleVersion;
         this.immutableAttributesFactory = immutableAttributesFactory;
-        this.artifacts = instantiator.newInstance(DefaultProductStoreArtifactSet.class, name, fileCollectionFactory, pathToFileResolver, instantiator);
+        this.artifacts = objectFactory.newInstance(DefaultProductStoreArtifactSet.class, name);
     }
 
     @Override

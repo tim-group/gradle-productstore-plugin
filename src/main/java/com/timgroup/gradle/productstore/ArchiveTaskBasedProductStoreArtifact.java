@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -17,6 +18,7 @@ public class ArchiveTaskBasedProductStoreArtifact implements ProductStoreArtifac
     private final TaskDependencyInternal buildDependencies;
     private final Set<Object> additionalBuildDependencies = new LinkedHashSet<>();
 
+    @Inject
     public ArchiveTaskBasedProductStoreArtifact(AbstractArchiveTask archiveTask) {
         this.archiveTask = archiveTask;
         this.buildDependencies = new AbstractTaskDependency() {
