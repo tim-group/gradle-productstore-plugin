@@ -15,7 +15,6 @@ import org.gradle.api.publish.internal.PublicationArtifactSet;
 import org.gradle.api.publish.internal.versionmapping.VersionMappingStrategyInternal;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
-import org.gradle.internal.Factory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -183,7 +182,7 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     }
 
     @Override
-    public ProductStoreArtifact addDerivedArtifact(ProductStoreArtifact originalArtifact, Factory<File> file) {
+    public ProductStoreArtifact addDerivedArtifact(ProductStoreArtifact originalArtifact, DerivedArtifact file) {
         throw new UnsupportedOperationException();
     }
 
