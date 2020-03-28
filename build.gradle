@@ -44,6 +44,8 @@ gradlePlugin {
         productstore {
             id = "com.timgroup.productstore"
             implementationClass = "com.timgroup.gradle.productstore.ProductStorePublishPlugin"
+            description = project.description
+            displayName = "Publish fat jars to ProductStore"
         }
     }
 }
@@ -51,14 +53,7 @@ gradlePlugin {
 pluginBundle {
     website = githubUrl
     vcsUrl = githubUrl
-    description = project.description
-    plugins {
-        webpack {
-            id = "com.timgroup.productstore"
-            displayName = "Publish fat jars to ProductStore"
-            tags = ["publication"]
-        }
-    }
+    tags = ["publication"]
 }
 
 publishing {
