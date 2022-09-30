@@ -32,7 +32,7 @@ dependencies {
     implementation(localGroovy())
 
     testImplementation("junit:junit:4.13")
-    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5") {
+    testImplementation("org.spockframework:spock-core:2.3-groovy-4.0") {
         exclude(module = "groovy-all")
     }
 }
