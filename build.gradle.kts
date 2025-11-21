@@ -71,11 +71,12 @@ publishing {
     repositories {
         if (project.hasProperty("repoUrl")) {
             maven("$repoUrl/repositories/yd-release-candidates") {
-                name = "timgroup"
+                name = "nexus"
                 credentials {
                     username = repoUsername.toString()
                     password = repoPassword.toString()
                 }
+                isAllowInsecureProtocol = true
             }
         }
     }
