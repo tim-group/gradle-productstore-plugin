@@ -2,7 +2,7 @@ plugins {
     `java-gradle-plugin`
     groovy
     `maven-publish`
-    id("com.gradle.plugin-publish") version "1.2.0"
+    id("com.gradle.plugin-publish") version "2.0.0"
     id("com.timgroup.jarmangit") version "1.1.117"
 }
 
