@@ -1,10 +1,6 @@
 package com.timgroup.gradle.productstore;
 
-import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.NamedDomainObjectSet;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.*;
 import org.gradle.api.internal.artifacts.Module;
 import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
 import org.gradle.api.model.ObjectFactory;
@@ -12,11 +8,7 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.plugins.PublishingPlugin;
-import org.gradle.model.Model;
-import org.gradle.model.ModelMap;
-import org.gradle.model.Mutate;
-import org.gradle.model.Path;
-import org.gradle.model.RuleSource;
+import org.gradle.model.*;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -65,10 +57,10 @@ public class ProductStorePublishPlugin implements Plugin<Project> {
                 tasks.create(publishTaskName, PublishToProductStore.class, task -> {
                     task.setPublication(publication);
                     task.setGroup(PublishingPlugin.PUBLISH_TASK_GROUP);
-                    task.getIdentityFile().set(productStoreExtension.getIdentity());
-                    task.getStoreUser().set(productStoreExtension.getUser());
-                    task.getStoreHost().set(productStoreExtension.getHost());
-                    task.getStorePath().set(productStoreExtension.getPath());
+                    task.getIdentityFile().convention(productStoreExtension.getIdentity());
+                    task.getStoreUser().convention(productStoreExtension.getUser());
+                    task.getStoreHost().convention(productStoreExtension.getHost());
+                    task.getStorePath().convention(productStoreExtension.getPath());
                     task.setDescription("Publishes ProductStore publication '" + publicationName + "'");
                 });
                 publishLifecycleTask.dependsOn(publishTaskName);

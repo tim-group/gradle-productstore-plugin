@@ -53,8 +53,8 @@ publishing {
         result.task(":jar").outcome == TaskOutcome.SUCCESS
         result.task(":publishToProductStore").outcome == TaskOutcome.SUCCESS
         result.output.find(Pattern.compile("Copy [^ ]+-0.0.0.jar to [^ ]+/test-app/test-app-0.0.0.jar"))
-        testTargetDir.resolve("test-app").isDirectory()
-        testTargetDir.resolve("test-app").resolve("test-app-0.0.0.jar").isFile()
+        testTargetDir.resolve("test-app").toFile().isDirectory()
+        testTargetDir.resolve("test-app").resolve("test-app-0.0.0.jar").toFile().isFile()
     }
 
     def "arbitrary file copied to target directory"() {
@@ -106,7 +106,7 @@ publishing {
         result.task(":buildTestFile").outcome == TaskOutcome.SUCCESS
         result.task(":publishToProductStore").outcome == TaskOutcome.SUCCESS
         result.output.find(Pattern.compile("Copy [^ ]+/build/file.jar to [^ ]+/test-app/test-app-0.0.0.jar"))
-        testTargetDir.resolve("test-app").isDirectory()
-        testTargetDir.resolve("test-app").resolve("test-app-0.0.0.jar").isFile()
+        testTargetDir.resolve("test-app").toFile().isDirectory()
+        testTargetDir.resolve("test-app").resolve("test-app-0.0.0.jar").toFile().isFile()
     }
 }

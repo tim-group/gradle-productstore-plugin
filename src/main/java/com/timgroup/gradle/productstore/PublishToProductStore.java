@@ -6,20 +6,19 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.process.internal.ExecActionFactory;
 import org.gradle.tooling.BuildActionFailureException;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class PublishToProductStore extends DefaultTask {
@@ -34,8 +33,7 @@ public class PublishToProductStore extends DefaultTask {
         getInputs().files((Callable<FileCollection>) () -> {
             if (publication != null) {
                 return publication.getPublishableFiles();
-            }
-            else {
+            } else {
                 return null;
             }
         }).withPropertyName("publication.publishableFiles");
@@ -55,6 +53,7 @@ public class PublishToProductStore extends DefaultTask {
     }
 
     @InputFile
+    @Optional
     public RegularFileProperty getIdentityFile() {
         return identityFile;
     }
@@ -84,9 +83,6 @@ public class PublishToProductStore extends DefaultTask {
         if (publication == null) {
             throw new InvalidUserDataException("The 'publication' property is required");
         }
-        if (!identityFile.isPresent()) {
-            throw new InvalidUserDataException("The 'identityFile' property is required");
-        }
 
         String targetPathname = String.format("%s/%s", storePath.get(), publication.getDestFile());
         String targetDir = dirname(targetPathname);
@@ -99,22 +95,43 @@ public class PublishToProductStore extends DefaultTask {
             } catch (IOException e) {
                 throw new BuildActionFailureException("Failed to copy file to target: " + e, e);
             }
-        }
-        else {
+        } else {
             String url = String.format("ssh://%s@%s%s", storeUser.get(), storeHost.get(), targetPathname);
 
             System.out.println("Upload " + url);
 
+            File identityFileValue = resolveIdentityFile();
+            List<String> commandArgs = new ArrayList<>();
+            commandArgs.add("ssh");
+            if (identityFileValue != null) {
+                commandArgs.add("-i");
+                commandArgs.add(identityFileValue.toString());
+            }
+            commandArgs.add(String.format("%s@%s", storeUser.get(), storeHost.get()));
+            commandArgs.add(String.format("mkdir -p %s && cat > %s && chmod 0444 %s", targetDir, targetPathname, targetPathname));
+
             try (InputStream inputStream = Files.newInputStream(publication.getArtifactFile().toPath())) {
                 ExecAction execAction = getExecActionFactory().newExecAction();
                 execAction.setStandardInput(inputStream);
-                execAction.setCommandLine(Arrays.asList("ssh", "-i", identityFile.getAsFile().get().toString(), String.format("%s@%s", storeUser.get(), storeHost.get()),
-                        String.format("mkdir -p %s && cat > %s && chmod 0444 %s", targetDir, targetPathname, targetPathname)));
+                execAction.setCommandLine(commandArgs);
                 execAction.execute();
             } catch (IOException e) {
                 throw new BuildActionFailureException("Unable to read artifact", e);
             }
         }
+    }
+
+    private File resolveIdentityFile() {
+        if (identityFile.isPresent()) {
+            return identityFile.getAsFile().get();
+        }
+
+        File defaultValue = new File(new File(System.getProperty("user.home")), ".ssh/productstore");
+        if (defaultValue.exists()) {
+            return defaultValue;
+        }
+
+        return null;
     }
 
     private static String dirname(String pathname) {

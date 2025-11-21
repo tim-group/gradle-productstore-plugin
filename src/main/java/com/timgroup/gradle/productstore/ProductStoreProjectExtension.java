@@ -4,8 +4,6 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
-import java.io.File;
-
 public class ProductStoreProjectExtension {
     private final Property<String> host;
     private final Property<String> user;
@@ -21,7 +19,6 @@ public class ProductStoreProjectExtension {
         host.set("productstore");
         user.set("productstore");
         path.set("/opt/ProductStore");
-        identity.set(new File(new File(System.getProperty("user.home")), ".ssh/productstore"));
     }
 
     public Property<String> getHost() {
