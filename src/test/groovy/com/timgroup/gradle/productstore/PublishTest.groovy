@@ -2,8 +2,6 @@ package com.timgroup.gradle.productstore
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.TempDir
 
