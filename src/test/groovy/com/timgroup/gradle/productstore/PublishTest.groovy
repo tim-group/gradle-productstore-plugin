@@ -5,24 +5,20 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
+import java.nio.file.Path
 import java.util.regex.Pattern
 
 class PublishTest extends Specification {
-    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
-    @Rule public final TemporaryFolder testTargetDir = new TemporaryFolder()
-
-    File buildFile
-    File settingsFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        settingsFile = testProjectDir.newFile('settings.gradle')
-    }
+    @TempDir
+    Path testProjectDir
+    @TempDir
+    Path testTargetDir
 
     def "output of jar task copied to target directory"() {
         given:
-        buildFile << """
+        testProjectDir.resolve('build.gradle') << """
 import com.timgroup.gradle.productstore.ProductStorePublication
 
 plugins {
@@ -50,8 +46,8 @@ publishing {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments("-PtestTargetDir=" + testTargetDir.root, "publish")
+                .withProjectDir(testProjectDir.toFile())
+                .withArguments("-PtestTargetDir=" + testTargetDir, "publish")
                 .withPluginClasspath()
                 .build()
 
@@ -59,13 +55,13 @@ publishing {
         result.task(":jar").outcome == TaskOutcome.SUCCESS
         result.task(":publishToProductStore").outcome == TaskOutcome.SUCCESS
         result.output.find(Pattern.compile("Copy [^ ]+-0.0.0.jar to [^ ]+/test-app/test-app-0.0.0.jar"))
-        new File(testTargetDir.root, "test-app").isDirectory()
-        new File(new File(testTargetDir.root, "test-app"), "test-app-0.0.0.jar").isFile()
+        testTargetDir.resolve("test-app").isDirectory()
+        testTargetDir.resolve("test-app").resolve("test-app-0.0.0.jar").isFile()
     }
 
     def "arbitrary file copied to target directory"() {
         given:
-        buildFile << """
+        testProjectDir.resolve('build.gradle') << """
 import com.timgroup.gradle.productstore.ProductStorePublication
 
 plugins {
@@ -103,8 +99,8 @@ publishing {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments("-PtestTargetDir=" + testTargetDir.root, "publish")
+                .withProjectDir(testProjectDir.toFile())
+                .withArguments("-PtestTargetDir=" + testTargetDir, "publish")
                 .withPluginClasspath()
                 .build()
 
@@ -112,7 +108,7 @@ publishing {
         result.task(":buildTestFile").outcome == TaskOutcome.SUCCESS
         result.task(":publishToProductStore").outcome == TaskOutcome.SUCCESS
         result.output.find(Pattern.compile("Copy [^ ]+/build/file.jar to [^ ]+/test-app/test-app-0.0.0.jar"))
-        new File(testTargetDir.root, "test-app").isDirectory()
-        new File(new File(testTargetDir.root, "test-app"), "test-app-0.0.0.jar").isFile()
+        testTargetDir.resolve("test-app").isDirectory()
+        testTargetDir.resolve("test-app").resolve("test-app-0.0.0.jar").isFile()
     }
 }

@@ -34,7 +34,7 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.spockframework:spock-core:2.3-groovy-3.0") {
-        exclude(module = "groovy-all")
+        exclude(module = "groovy")
     }
 }
 
@@ -44,8 +44,8 @@ tasks {
         options.compilerArgs.add("-parameters")
     }
 
-    "test"(Test::class) {
-        maxParallelForks = 4
+    withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 }
 

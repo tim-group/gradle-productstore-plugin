@@ -5,19 +5,17 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
+
+import java.nio.file.Path
 
 class DescriptionsTest extends Specification {
-    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
-
-    File buildFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-    }
+    @TempDir
+    Path testProjectDir
 
     def "tasks show up in 'gradle tasks' output"() {
         given:
-        buildFile << """
+        testProjectDir.resolve('build.gradle') << """
 import com.timgroup.gradle.productstore.ProductStorePublication
 
 plugins {
@@ -37,7 +35,7 @@ publishing {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withArguments("tasks")
                 .withPluginClasspath()
                 .build()
