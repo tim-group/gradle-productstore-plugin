@@ -196,4 +196,17 @@ public class DefaultProductStorePublication implements ProductStorePublicationIn
     public VersionMappingStrategyInternal getVersionMappingStrategy() {
         return null;
     }
+
+    @Override
+    public boolean isPublishBuildId() {
+        return false;
+    }
+
+    @Override
+    public void withoutBuildIdentifier() {
+    }
+
+    @Override
+    public void withBuildIdentifier() {
+    }
 }

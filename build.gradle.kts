@@ -22,8 +22,9 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
     withSourcesJar()
 }
 
@@ -31,13 +32,18 @@ dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
 
-    testImplementation("junit:junit:4.13")
-    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5") {
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0") {
         exclude(module = "groovy-all")
     }
 }
 
 tasks {
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.compilerArgs.add("-parameters")
+    }
+
     "test"(Test::class) {
         maxParallelForks = 4
     }
@@ -50,6 +56,7 @@ gradlePlugin {
             implementationClass = "com.timgroup.gradle.productstore.ProductStorePublishPlugin"
             description = project.description
             displayName = "Publish fat jars to ProductStore"
+            tags.add("publish")
         }
     }
 }
