@@ -3,18 +3,19 @@ plugins {
     groovy
     `maven-publish`
     id("com.gradle.plugin-publish") version "2.0.0"
-    id("com.timgroup.jarmangit") version "1.1.117"
+    id("com.timgroup.jarmangit") version "1.2.195"
 }
 
 val repoUrl: String? by project
 val repoUsername: String? by project
 val repoPassword: String? by project
 
-val buildNumber: String? by extra { System.getenv("ORIGINAL_BUILD_NUMBER") ?: System.getenv("BUILD_NUMBER") }
+val buildNumber = providers.environmentVariable("ORIGINAL_BUILD_NUMBER")
+    .orElse(providers.environmentVariable("BUILD_NUMBER"))
 val githubUrl by extra("https://github.com/tim-group/gradle-webpack-plugin")
 
 group = "com.timgroup"
-if (buildNumber != null) version = "1.0.$buildNumber"
+if (buildNumber.isPresent) version = "1.0.${buildNumber.get()}"
 description = "Publish fat jars to ProductStore"
 
 repositories {
@@ -67,16 +68,34 @@ pluginBundle {
     tags = setOf("publication")
 }
 
+val nexusRepoUrl = providers.gradleProperty("repoUrl")
+val nexusRepoUsername = providers.gradleProperty("repoUsername")
+val nexusRepoPassword = providers.gradleProperty("repoPassword")
+val codeartifactUrl = providers.environmentVariable("CODEARTIFACT_URL")
+    .orElse(providers.gradleProperty("codeartifact.url"))
+    .orElse("https://timgroup-148217964156.d.codeartifact.eu-west-1.amazonaws.com/maven/jars/")
+val codeartifactToken = providers.environmentVariable("CODEARTIFACT_TOKEN")
+    .orElse(providers.gradleProperty("codeartifact.token"))
+
 publishing {
     repositories {
-        if (project.hasProperty("repoUrl")) {
-            maven("$repoUrl/repositories/yd-release-candidates") {
+        if (nexusRepoUrl.isPresent && nexusRepoUsername.isPresent && nexusRepoPassword.isPresent) {
+            maven("${nexusRepoUrl.get()}/repositories/yd-release-candidates") {
                 name = "nexus"
                 credentials {
                     username = repoUsername.toString()
                     password = repoPassword.toString()
                 }
                 isAllowInsecureProtocol = true
+            }
+        }
+        if (codeartifactUrl.isPresent && codeartifactToken.isPresent) {
+            maven(url = codeartifactUrl.get()) {
+                name = "codeartifact"
+                credentials {
+                    username = "aws"
+                    password = codeartifactToken.get()
+                }
             }
         }
     }
