@@ -34,7 +34,7 @@ dependencies {
     implementation(localGroovy())
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0") {
+    testImplementation("org.spockframework:spock-core:2.4-groovy-5.0") {
         exclude(module = "groovy")
     }
 }
