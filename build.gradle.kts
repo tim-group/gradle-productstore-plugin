@@ -6,13 +6,9 @@ plugins {
     id("com.timgroup.jarmangit") version "1.2.195"
 }
 
-val repoUrl: String? by project
-val repoUsername: String? by project
-val repoPassword: String? by project
-
 val buildNumber = providers.environmentVariable("ORIGINAL_BUILD_NUMBER")
     .orElse(providers.environmentVariable("BUILD_NUMBER"))
-val githubUrl by extra("https://github.com/tim-group/gradle-webpack-plugin")
+val githubUrl by extra("https://github.com/tim-group/gradle-productstore-plugin")
 
 group = "com.timgroup"
 if (buildNumber.isPresent) version = "1.0.${buildNumber.get()}"
@@ -83,8 +79,8 @@ publishing {
             maven("${nexusRepoUrl.get()}/repositories/yd-release-candidates") {
                 name = "nexus"
                 credentials {
-                    username = repoUsername.toString()
-                    password = repoPassword.toString()
+                    username = nexusRepoUsername.get()
+                    password = nexusRepoPassword.get()
                 }
                 isAllowInsecureProtocol = true
             }
