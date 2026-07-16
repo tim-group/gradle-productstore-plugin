@@ -3,6 +3,7 @@ plugins {
     groovy
     `maven-publish`
     id("com.gradle.plugin-publish") version "2.0.0"
+    id("com.adarshr.test-logger") version "4.0.0"
 }
 
 val buildNumber = providers.environmentVariable("ORIGINAL_BUILD_NUMBER")
