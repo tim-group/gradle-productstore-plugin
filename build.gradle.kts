@@ -29,7 +29,9 @@ dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     testImplementation("org.spockframework:spock-core:2.4-groovy-3.0") {
         exclude(module = "groovy")
     }
