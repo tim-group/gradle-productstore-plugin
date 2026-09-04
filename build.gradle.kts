@@ -29,7 +29,7 @@ dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     testImplementation("org.spockframework:spock-core:2.4-groovy-3.0") {
